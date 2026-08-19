@@ -16,7 +16,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: mobaxterm-keygen
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,6 +27,7 @@ jobs:
 
       - name: Build
         run: |
+          cd mobaxterm-keygen
           CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o MobaXtermKeyGen.exe .
 
       - name: Upload artifact

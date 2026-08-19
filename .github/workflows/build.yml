@@ -1,0 +1,45 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build MobaXtermKeyGen.exe
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: mobaxterm-keygen
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Build
+        run: |
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o MobaXtermKeyGen.exe .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MobaXtermKeyGen-windows
+          path: mobaxterm-keygen/MobaXtermKeyGen.exe
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: mobaxterm-keygen/MobaXtermKeyGen.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
